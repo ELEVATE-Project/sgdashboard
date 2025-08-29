@@ -22,8 +22,8 @@ export class ProgramsReportListComponent implements OnInit {
 
   partners:any = [];
   constructor(private router:Router, private activatedRoute: ActivatedRoute) {
-    this.activatedRoute.paramMap.subscribe((param:any) => {
-      this.paramsData = param.params
+    this.activatedRoute.params.subscribe((param:any) => {
+      this.paramsData = param
     });
   }
 

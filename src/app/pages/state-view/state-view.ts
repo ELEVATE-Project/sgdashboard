@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ElementRef, ViewChild, HostListener, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ElementRef, ViewChild, HostListener, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 import { CommonModule, KeyValuePipe } from '@angular/common';
@@ -86,9 +86,9 @@ export class StateView implements OnInit, AfterViewInit, OnChanges {
     this.drawMap();
   }
 
-  ngOnChanges(changes: any){
-    if(changes?.slm?.currentValue){
-      this.stateLedMission = changes?.stateLedMission?.currentValue
+  ngOnChanges(changes: SimpleChanges){
+    if("stateLedMission" in changes){
+      this.stateLedMission = changes["stateLedMission"].currentValue ?? 0
     }
   }
 

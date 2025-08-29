@@ -23,8 +23,8 @@ export class MetricsListComponent {
   paramsData:any
 
   constructor(private activatedRoute: ActivatedRoute, private router: Router){
-    this.activatedRoute.paramMap.subscribe((param:any) => {
-      this.paramsData = param.params
+    this.activatedRoute.params.subscribe((param:any) => {
+      this.paramsData = param
     });
   }
 
@@ -53,12 +53,11 @@ export class MetricsListComponent {
   }
 
   navigateToLocation(item:any) {
-    console.log(item);
-    if(item.value == 0) return
-    if(item.identifier == 'slm'){
+    if(item?.value == 0) return
+    if(item?.identifier == 'slm'){
       this.scrollToProgramsEvent.emit();
       return;
-    }else if(item.identifier == 'clm'){
+    }else if(item?.identifier == 'clm'){
       this.router.navigate(['/community-view', this.paramsData.state, this.paramsData.code ]);
       return
     }
