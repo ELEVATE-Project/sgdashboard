@@ -6,6 +6,12 @@ export type OutcomesLayerKey =
   | 'system'
   | 'network';
 
+export function toSentenceCase(value: string | null | undefined): string {
+  const trimmed = (value || '').trim();
+  if (!trimmed) return '';
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+}
+
 export type OutcomesPanelType = 'programs' | 'list' | 'story';
 export type OutcomesLayerShape = 'full' | 'top' | 'bottom';
 

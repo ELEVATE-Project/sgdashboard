@@ -14,6 +14,7 @@ import {
   OutcomesLayerKey,
   OutcomesLayerShape,
   OutcomesModelConfig,
+  toSentenceCase,
 } from '../outcomes-model/outcomes-model.config';
 
 type LayerVisualState = 'active' | 'muted' | 'disabled' | 'rest';
@@ -262,7 +263,7 @@ export class OutcomesDiagramComponent {
   }
 
   getLayerDiagramLabel(layerKey: OutcomesLayerKey): string {
-    return this.getLayerByKey(layerKey)?.diagramLabel?.toLowerCase() || '';
+    return toSentenceCase(this.getLayerByKey(layerKey)?.diagramLabel);
   }
 
   gradientId(name: string): string {

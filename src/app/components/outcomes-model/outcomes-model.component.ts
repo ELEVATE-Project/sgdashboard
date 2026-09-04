@@ -8,6 +8,7 @@ import { OutcomesDiagramComponent } from '../outcomes-diagram/outcomes-diagram.c
 import { OutcomesEvidenceCarouselComponent } from '../outcomes-evidence-carousel/outcomes-evidence-carousel.component';
 import { OutcomesInfoModalComponent } from '../outcomes-info-modal/outcomes-info-modal.component';
 import { OutcomesProgramCardCarouselComponent } from '../outcomes-program-card-carousel/outcomes-program-card-carousel.component';
+import { SentenceCasePipe } from './sentence-case.pipe';
 import {
   buildProgramOutcomeDataFromFramework,
   EMPTY_LAYER,
@@ -35,6 +36,7 @@ import {
     OutcomesInfoModalComponent,
     OutcomesEvidenceCarouselComponent,
     OutcomesProgramCardCarouselComponent,
+    SentenceCasePipe,
   ],
   templateUrl: './outcomes-model.component.html',
   styleUrls: [

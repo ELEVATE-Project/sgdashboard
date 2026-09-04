@@ -33,7 +33,7 @@
 
       <div>
         <h3 [id]="titleId" [style.color]="color">
-          {{ title }}
+          {{ title | sentenceCase }}
         </h3>
 
         <p>
@@ -57,7 +57,7 @@
         </span>
 
         <h4 [style.color]="color">
-          {{ item.title }}
+          {{ item.title | sentenceCase }}
         </h4>
 
         <p [style.border-left-color]="color">
