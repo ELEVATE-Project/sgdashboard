@@ -59,7 +59,7 @@
 
           <h4
           class="program-partner-card-title">
-            {{ cardLabel }}
+            {{ cardLabel | sentenceCase }}
           </h4>
 
           <a
@@ -84,7 +84,7 @@
             (mouseleave)="hideTooltip()"
             (click)="isLabelTruncated(cardLabel) && toggleTooltipMobile($event, cardLabel)"
           >
-            {{ cardLabel }}
+            {{ cardLabel | sentenceCase }}
           </span>
 
           <p>
@@ -153,5 +153,5 @@
   [style.top.px]="tooltipTop"
   [style.left.px]="tooltipLeft"
 >
-  {{ tooltipText }}
+  {{ tooltipText | sentenceCase }}
 </div>

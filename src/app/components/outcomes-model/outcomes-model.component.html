@@ -10,6 +10,7 @@
           [selectedLayerKey]="selectedLayerKey"
           [hasProgramOutcomeData]="hasProgramOutcomeData"
           [disabledLayerKeys]="disabledLayerKeys"
+          [iconOverrides]="programLayerIconOverrides"
           [showDiagramNote]="!hasProgramOutcomeData"
           (layerSelect)="selectLayer($event)"
         ></app-outcomes-diagram>
@@ -34,15 +35,16 @@
           ></span>
 
           <div class="program-mode-copy">
-            <h3>{{ programPanelTitle }}:</h3>
-            <p>{{ programPanelDescription }}</p>
+            <h3>{{ programPanelTitle | sentenceCase }}:</h3>
           </div>
 
           <button
             type="button"
             class="info-button"
             [style.--info-color]="selectedLayer.color"
-            [attr.aria-label]="'Show ' + programPanelTitle + ' explanation'"
+            [attr.aria-label]="
+              'Show ' + (programPanelTitle | sentenceCase) + ' explanation'
+            "
             (click)="isInfoModalOpen = true"
           >
             <span class="info-button-icon" aria-hidden="true"></span>
@@ -62,7 +64,7 @@
 
         <app-outcomes-evidence-carousel
           [evidences]="programEvidenceResources"
-          [heading]="config.evidenceHeading"
+          [heading]="config.evidenceHeading | sentenceCase"
           [prevLabel]="config.ariaLabels.prevEvidence"
           [nextLabel]="config.ariaLabels.nextEvidence"
           [viewLabel]="config.ariaLabels.viewEvidence"
@@ -76,7 +78,7 @@
           [attr.aria-label]="config.ariaLabels.layerTiles"
         >
           <button
-            *ngFor="let layer of layers; trackBy: trackByLayerKey"
+            *ngFor="let layer of frameworkLayers; trackBy: trackByLayerKey"
             type="button"
             class="program-layer-tile"
             [class.active]="selectedLayerKey === layer.key"
@@ -88,7 +90,7 @@
             "
             (click)="selectLayer(layer.key)"
           >
-            {{ getLayerTileLabel(layer) }}
+            {{ getLayerTileLabel(layer) | sentenceCase }}
           </button>
         </div>
 
@@ -110,7 +112,7 @@
             (click)="selectLayer(layer.key)"
             [attr.data-key]="layer.key"
           >
-            {{ layer.chipLabel }}
+            {{ layer.chipLabel | sentenceCase }}
           </button>
         </ng-template>
 
@@ -124,7 +126,7 @@
           </p> -->
 
           <h2>
-            {{ config.title }}
+            {{ config.title | sentenceCase }}
           </h2>
 
           <p class="lead">
@@ -172,18 +174,6 @@
             <p>
               {{ narrativeBody }}
             </p>
-
-            <a
-              class="story-cta"
-              *ngIf="selectedLayer.cta"
-              [routerLink]="selectedLayer.cta.link"
-            >
-              {{ selectedLayer.cta.label }}
-
-              <span class="material-icons" aria-hidden="true">
-                {{ config.ctaIcon }}
-              </span>
-            </a>
           </article>
         </section>
 
@@ -197,7 +187,7 @@
           </p> -->
 
           <h2>
-            {{ config.frameworkTitle }}
+            {{ config.frameworkTitle | sentenceCase }}
           </h2>
 
           <p class="framework-lead">
@@ -217,11 +207,11 @@
                 [style.--pill-color]="config.programColor"
                 (click)="selectProgramPanel()"
               >
-                {{ config.programChipLabel }}
+                {{ config.programChipLabel | sentenceCase }}
               </button>
 
               <ng-container
-                *ngFor="let layer of layers; trackBy: trackByLayerKey"
+                *ngFor="let layer of frameworkLayers; trackBy: trackByLayerKey"
               >
                 <ng-container
                   *ngTemplateOutlet="
@@ -247,14 +237,14 @@
 
                 <div>
                   <span class="framework-eyebrow">
-                    {{ config.programChipLabel }}
+                    {{ config.programChipLabel | sentenceCase }}
                   </span>
 
                   <h3>
                     {{
                       displayProgramData?.title ||
-                        selectedLayer.heading ||
-                        selectedLayer.chipLabel
+                        ((selectedLayer.heading || selectedLayer.chipLabel)
+                          | sentenceCase)
                     }}
                   </h3>
                 </div>
@@ -273,7 +263,7 @@
               </div>
 
               <p class="fwsub" *ngIf="selectedProgramData?.subtitle">
-                {{ selectedProgramData?.subtitle }}
+                {{ selectedProgramData?.subtitle | sentenceCase }}
               </p>
 
               <ul class="framework-list" *ngIf="programCards.length">
@@ -292,7 +282,7 @@
                     </span>
 
                     <span class="framework-term">
-                      {{ cardLabel }}
+                      {{ cardLabel | sentenceCase }}
                     </span>
 
                     <span class="framework-question">
@@ -307,7 +297,7 @@
                 *ngIf="programEvidenceResources.length"
               >
                 <h4>
-                  {{ config.evidenceHeading }}
+                  {{ config.evidenceHeading | sentenceCase }}
                   ({{ programEvidenceResources.length }})
                 </h4>
 
@@ -379,17 +369,29 @@
 
                 <div>
                   <span class="framework-eyebrow">
-                    {{ selectedLayer.heading || selectedLayer.chipLabel }}
+                    {{ (selectedLayer.heading || selectedLayer.chipLabel) | sentenceCase }}
                   </span>
 
                 </div>
               </div>
 
-              <p class="fwsub" *ngIf="selectedLayer.subheading">
-                {{ selectedLayer.subheading }}
+              <p class="fwsub" *ngIf="selectedLayerDefinition || selectedLayer.body">
+                {{ selectedLayerDefinition || selectedLayer.body }}
               </p>
 
-              <ul class="framework-list">
+              <a
+              class="story-cta"
+              *ngIf="selectedLayer.cta"
+              [routerLink]="selectedLayer.cta.link"
+            >
+              {{ selectedLayer.cta.label }}
+
+              <span class="material-icons" aria-hidden="true">
+                {{ config.ctaIcon }}
+              </span>
+            </a>
+
+              <ul class="framework-list" *ngIf="shouldShowFrameworkList">
                 <li
                   *ngFor="
                     let item of selectedLayer.listItems || [];
@@ -401,7 +403,7 @@
                   </span>
 
                   <span class="framework-term">
-                    {{ item.title }}
+                    {{ item.title | sentenceCase }}
                   </span>
 
                   <span class="framework-question">
@@ -414,7 +416,7 @@
             <ng-template #frameworkDefinitionPanel>
               <article class="definition-card">
                 <span class="framework-eyebrow">
-                  {{ selectedLayer.heading || selectedLayer.chipLabel }}
+                  {{ (selectedLayer.heading || selectedLayer.chipLabel) | sentenceCase }}
                 </span>
 
                 <p class="fwnote">

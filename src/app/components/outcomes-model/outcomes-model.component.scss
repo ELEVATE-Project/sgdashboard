@@ -130,7 +130,7 @@
   letter-spacing: 0.14em;
   line-height: 1.2;
   margin: 0;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .rail h2 {
@@ -306,8 +306,8 @@
 
 .fwsub {
   color: var(--oc-body-text);
-  font-size: 0.875rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 400;
   line-height: 1.45;
   margin: 0 0 0.625rem;
 }
@@ -540,6 +540,10 @@
 .program-mode-copy {
   min-width: 0;
   width: 100%;
+
+  h3{
+    font-size: 1.56rem !important;
+  }
 }
 
 .has-program-data .program-mode-heading {

@@ -14,6 +14,7 @@ import {
   OutcomesLayerKey,
   OutcomesLayerShape,
   OutcomesModelConfig,
+  toSentenceCase,
 } from '../outcomes-model/outcomes-model.config';
 
 type LayerVisualState = 'active' | 'muted' | 'disabled' | 'rest';
@@ -33,6 +34,7 @@ export class OutcomesDiagramComponent {
   @Input() selectedLayerKey!: OutcomesLayerKey;
   @Input() hasProgramOutcomeData = false;
   @Input() disabledLayerKeys: Set<OutcomesLayerKey> = new Set();
+  @Input() iconOverrides: Partial<Record<OutcomesLayerKey, string>> = {};
   @Input() showDiagramNote = true;
 
   @Output() layerSelect = new EventEmitter<OutcomesLayerKey>();
@@ -141,6 +143,10 @@ export class OutcomesDiagramComponent {
     if (state === 'active') return this.gradientUrl('icon-tint-' + layerKey);
     if (state === 'muted') return this.gradientUrl('icon-muted-tint-' + layerKey);
     return null;
+  }
+
+  getLayerIconHref(layer: OutcomesLayerConfig): string {
+    return this.iconOverrides[layer.key] || layer.diagram.icon.value;
   }
 
   isReferenceLayerActive(layerKey: OutcomesLayerKey | string): boolean {
@@ -257,7 +263,7 @@ export class OutcomesDiagramComponent {
   }
 
   getLayerDiagramLabel(layerKey: OutcomesLayerKey): string {
-    return this.getLayerByKey(layerKey)?.diagramLabel?.toLowerCase() || '';
+    return toSentenceCase(this.getLayerByKey(layerKey)?.diagramLabel);
   }
 
   gradientId(name: string): string {

@@ -6,6 +6,12 @@ export type OutcomesLayerKey =
   | 'system'
   | 'network';
 
+export function toSentenceCase(value: string | null | undefined): string {
+  const trimmed = (value || '').trim();
+  if (!trimmed) return '';
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+}
+
 export type OutcomesPanelType = 'programs' | 'list' | 'story';
 export type OutcomesLayerShape = 'full' | 'top' | 'bottom';
 
@@ -169,6 +175,13 @@ export interface ProgramOutcomeData {
   layerKey?: OutcomesLayerKey;
   title?: string;
   subtitle?: string;
+  icon?: string;
+  iconUrl?: string;
+  imageUrl?: string;
+  imgPath?: string;
+  image?: string;
+  diagramIcon?: string;
+  diagramIconUrl?: string;
   infoLabel?: string;
   cardVariant?: 'outcome' | 'partner';
   outcomes?: ProgramOutcomeCard[];
@@ -416,6 +429,23 @@ function extractEvidences(impactLayer: any): ProgramEvidenceResource[] {
   return evidences;
 }
 
+function extractLayerIcon(impactLayer: any): string | undefined {
+  return (
+    impactLayer?.diagramIconUrl ||
+    impactLayer?.diagram_icon_url ||
+    impactLayer?.diagramIcon ||
+    impactLayer?.diagram_icon ||
+    impactLayer?.iconUrl ||
+    impactLayer?.icon_url ||
+    impactLayer?.imageUrl ||
+    impactLayer?.image_url ||
+    impactLayer?.imgPath ||
+    impactLayer?.img_path ||
+    impactLayer?.image ||
+    impactLayer?.icon
+  );
+}
+
 // Reshapes the raw API `framework` array into ProgramOutcomeData: each entry is one impact
 // layer. Supports both the live API's nested `frameworks[].details[]` shape and a flatter
 // `cards[]`/`evidences[]` shape, in case the API moves to that later.
@@ -435,7 +465,17 @@ export function buildProgramOutcomeDataFromFramework(framework: any[]): ProgramO
 
     if (!outcomes.length && !evidences.length) continue;
 
-    const layerData: ProgramOutcomeData = { title: impactLayer.impact_layer, outcomes, evidences };
+    const icon = extractLayerIcon(impactLayer);
+    const layerData: ProgramOutcomeData = {
+      title: impactLayer.impact_layer,
+      icon,
+      iconUrl: icon,
+      imgPath: icon,
+      diagramIcon: icon,
+      diagramIconUrl: icon,
+      outcomes,
+      evidences
+    };
 
     if (layerKey === PROGRAM_OUTCOME_BASE_LAYER_KEY) {
       baseLayerData = layerData;

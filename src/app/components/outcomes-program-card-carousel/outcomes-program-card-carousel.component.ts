@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, Input } from '@angular/core';
 import { ProgramOutcomeCard } from '../outcomes-model/outcomes-model.config';
+import { SentenceCasePipe } from '../outcomes-model/sentence-case.pipe';
 
 // The paginated program-card carousel shown in program mode, including its "partner"
 // display variant and the truncated-label tooltip (both exclusive to this carousel —
@@ -9,7 +10,7 @@ import { ProgramOutcomeCard } from '../outcomes-model/outcomes-model.config';
 @Component({
   selector: 'app-outcomes-program-card-carousel',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SentenceCasePipe],
   templateUrl: './outcomes-program-card-carousel.component.html',
   styleUrls: ['./outcomes-program-card-carousel.component.scss'],
 })

@@ -8,6 +8,7 @@ import { OutcomesDiagramComponent } from '../outcomes-diagram/outcomes-diagram.c
 import { OutcomesEvidenceCarouselComponent } from '../outcomes-evidence-carousel/outcomes-evidence-carousel.component';
 import { OutcomesInfoModalComponent } from '../outcomes-info-modal/outcomes-info-modal.component';
 import { OutcomesProgramCardCarouselComponent } from '../outcomes-program-card-carousel/outcomes-program-card-carousel.component';
+import { SentenceCasePipe } from './sentence-case.pipe';
 import {
   buildProgramOutcomeDataFromFramework,
   EMPTY_LAYER,
@@ -35,6 +36,7 @@ import {
     OutcomesInfoModalComponent,
     OutcomesEvidenceCarouselComponent,
     OutcomesProgramCardCarouselComponent,
+    SentenceCasePipe,
   ],
   templateUrl: './outcomes-model.component.html',
   styleUrls: [
@@ -111,6 +113,9 @@ export class OutcomesModelComponent implements OnDestroy, OnInit {
   isInfoModalOpen = false;
   private hasExplicitLayerSelection = false;
   private isDestroyed = false;
+  private readonly emptyProgramLayerIconOverrides: Partial<Record<OutcomesLayerKey, string>> = {};
+  private programLayerIconOverridesCacheKey = '';
+  private programLayerIconOverridesCache: Partial<Record<OutcomesLayerKey, string>> = {};
 
   ngOnInit(): void {
     // Diagram styling/text always comes from OUTCOMES_MODEL_CONFIG_PAGE. Only fetch it if this
@@ -251,7 +256,12 @@ export class OutcomesModelComponent implements OnDestroy, OnInit {
   }
 
   get infoModalIcon(): string {
-    return this.infoModalLayer.icon;
+    return (
+      this.getProgramLayerIcon(this.infoModalLayer.key) ||
+      this.infoModalLayer.imgPath ||
+      (this.infoModalLayer.diagram.icon.type === 'image' ? this.infoModalLayer.diagram.icon.value : '') ||
+      this.infoModalLayer.icon
+    );
   }
 
   get infoModalColor(): string {
@@ -259,6 +269,10 @@ export class OutcomesModelComponent implements OnDestroy, OnInit {
   }
 
   get infoModalListItems(): OutcomesListItem[] {
+    if (!this.shouldShowLayerFrameworkList(this.infoModalLayer.key)) {
+      return [];
+    }
+
     return this.infoModalLayer.listItems || [];
   }
 
@@ -271,8 +285,8 @@ export class OutcomesModelComponent implements OnDestroy, OnInit {
   }
 
   get narrativeBody(): string {
-    if (this.selectedLayer.subheading) {
-      return this.selectedLayer.subheading;
+    if (this.selectedLayerDefinition) {
+      return this.selectedLayerDefinition;
     }
 
     if (this.selectedLayer.body) {
@@ -284,6 +298,17 @@ export class OutcomesModelComponent implements OnDestroy, OnInit {
     }
 
     return this.config.defaultNarrativeBody;
+  }
+
+  get selectedLayerDefinition(): string {
+    const layerTitle = this.normalizeLayerText(
+      this.selectedLayer.heading || this.selectedLayer.chipLabel || this.selectedLayer.key
+    );
+    const definitionItem = this.selectedLayer.listItems?.find(
+      (item) => this.normalizeLayerText(item.title) === layerTitle
+    );
+
+    return definitionItem?.description || this.selectedLayer.subheading || '';
   }
 
   get frameworkLead(): string {
@@ -307,7 +332,26 @@ export class OutcomesModelComponent implements OnDestroy, OnInit {
   }
 
   get programPanelIcon(): string {
-    return this.selectedLayer.imgPath;
+    return this.getProgramLayerIcon(this.selectedLayerKey) || this.selectedLayer.imgPath || this.selectedLayer.diagram.icon.value;
+  }
+
+  get programLayerIconOverrides(): Partial<Record<OutcomesLayerKey, string>> {
+    if (!this.hasProgramOutcomeData) return this.emptyProgramLayerIconOverrides;
+
+    const cacheKey = this.layers.map((layer) => `${layer.key}:${this.getProgramLayerIcon(layer.key)}`).join('|');
+    if (cacheKey === this.programLayerIconOverridesCacheKey) {
+      return this.programLayerIconOverridesCache;
+    }
+
+    this.programLayerIconOverridesCacheKey = cacheKey;
+    this.programLayerIconOverridesCache = this.layers.reduce<Partial<Record<OutcomesLayerKey, string>>>((icons, layer) => {
+      const icon = this.getProgramLayerIcon(layer.key);
+      if (icon) {
+        icons[layer.key] = icon;
+      }
+      return icons;
+    }, {});
+    return this.programLayerIconOverridesCache;
   }
 
   get programEvidenceResources(): ProgramEvidenceResource[] {
@@ -329,7 +373,31 @@ export class OutcomesModelComponent implements OnDestroy, OnInit {
   }
 
   get secondaryLayers(): OutcomesLayerConfig[] {
-    return this.layers.slice(3);
+    return this.layers.slice(3).sort((a, b) => {
+      const order: Partial<Record<OutcomesLayerKey, number>> = {
+        system: 0,
+        society: 1,
+        network: 2,
+      };
+      return (order[a.key] ?? 99) - (order[b.key] ?? 99);
+    });
+  }
+
+  get frameworkLayers(): OutcomesLayerConfig[] {
+    const order: Partial<Record<OutcomesLayerKey, number>> = {
+      students: 0,
+      schools: 1,
+      community: 2,
+      system: 3,
+      society: 4,
+      network: 5,
+    };
+
+    return [...this.layers].sort((a, b) => (order[a.key] ?? 99) - (order[b.key] ?? 99));
+  }
+
+  get shouldShowFrameworkList(): boolean {
+    return this.shouldShowLayerFrameworkList(this.selectedLayerKey);
   }
 
   // Every layer's disabled state, precomputed once for the diagram child component
@@ -416,6 +484,23 @@ export class OutcomesModelComponent implements OnDestroy, OnInit {
     return layers[layerKey];
   }
 
+  private getProgramLayerIcon(layerKey: OutcomesLayerKey): string {
+    const layerData = this.getProgramLayerData(layerKey);
+    const baseData = layerKey === this.programBaseLayerKey ? this.programOutcomeData : undefined;
+    const data = layerData || baseData;
+
+    return (
+      data?.diagramIconUrl ||
+      data?.diagramIcon ||
+      data?.iconUrl ||
+      data?.imageUrl ||
+      data?.imgPath ||
+      data?.image ||
+      data?.icon ||
+      ''
+    );
+  }
+
   private hasProgramContent(data?: ProgramOutcomeData): boolean {
     return !!(data?.title || data?.subtitle || data?.outcomes?.length || data?.evidences?.length);
   }
@@ -464,6 +549,14 @@ export class OutcomesModelComponent implements OnDestroy, OnInit {
 
   getLayerByKey(key: OutcomesLayerKey | string): OutcomesLayerConfig | undefined {
     return this.layers.find((layer) => layer.key === key);
+  }
+
+  private normalizeLayerText(text: string): string {
+    return text.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  }
+
+  private shouldShowLayerFrameworkList(layerKey: OutcomesLayerKey): boolean {
+    return layerKey !== 'society' && layerKey !== 'network';
   }
 
   // Keeps text readable on dynamic layer-color backgrounds.

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { OutcomesListItem } from '../outcomes-model/outcomes-model.config';
+import { SentenceCasePipe } from '../outcomes-model/sentence-case.pipe';
 
 // A focus-trapped, scroll-locking modal. Only ever rendered behind an *ngIf, so its
 // own ngOnInit/ngOnDestroy double as "opened"/"closed" hooks — no explicit open/close
@@ -8,7 +9,7 @@ import { OutcomesListItem } from '../outcomes-model/outcomes-model.config';
 @Component({
   selector: 'app-outcomes-info-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SentenceCasePipe],
   templateUrl: './outcomes-info-modal.component.html',
   styleUrls: ['./outcomes-info-modal.component.scss'],
 })
@@ -51,6 +52,10 @@ export class OutcomesInfoModalComponent implements OnInit, OnDestroy {
 
   close(): void {
     this.closed.emit();
+  }
+
+  get isImageIcon(): boolean {
+    return /^(https?:\/\/|\/?assets\/|\.\/assets\/)/.test(this.icon || '');
   }
 
   @HostListener('document:keydown.escape')

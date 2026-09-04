@@ -1,31 +1,36 @@
 <div class="container">
     <div class="left-panel">
-        <h2 class="section-title">Themes beneath the voices</h2>
-        <div class="heatmap-grid" *ngIf="themes && themes.length">
-            <div *ngFor="let theme of themes, let i = index" class="heatmap-item" [ngClass]="theme.gridClass"
-                [class.active]="activeThemeId === theme.id" [class]="theme.color"
-                (mouseenter)="setActiveTheme(theme.id)" >
-                <div class="content" #tooltip="matTooltip" matTooltip="{{ theme.label }}" matTooltipPosition="below" [matTooltipTouchGestures]="isMobile ? 'off' : 'auto'" matTooltipShowDelay="100"  (click)="showTooltipOnClick(i)"
-                    matTooltipClass="heatmap-tooltip">
-                    <div class="icon" *ngIf="theme.icon">
-                        <img [src]="theme.icon" alt="icon" class="icon-img" />
-                    </div>
-                    <div class="text-spacing">
-                        <h3 class="theme-title">{{ theme.label }}</h3>
-                        <p class="voice-count ml-1" *ngIf="theme.value > 0">
-                            {{ theme.value }} Voices raised
-                        </p>
-                    </div>
-                </div>
+        <h2 class="section-title">{{ text.themesTitle }}</h2>
+        <div class="treemap-shell" *ngIf="themes && themes.length">
+            <div class="treemap-a11y-controls" role="group" [attr.aria-label]="text.themeSelectorLabel">
+                <button
+                    *ngFor="let theme of themes"
+                    type="button"
+                    class="treemap-a11y-button"
+                    [attr.aria-pressed]="activeThemeId === theme.id"
+                    (click)="setActiveTheme(theme.id)"
+                >
+                    {{ theme.label }} – {{ theme.value }} {{ text.voicesRaisedSuffix }}
+                </button>
+            </div>
+            <canvas #treemapCanvas aria-hidden="true"></canvas>
+            <div
+                class="treemap-tooltip"
+                *ngIf="hoveredThemeTooltip"
+                [style.left.px]="hoveredThemeTooltip.left"
+                [style.top.px]="hoveredThemeTooltip.top"
+            >
+                <strong>{{ hoveredThemeTooltip.label }}</strong>
+                <span>{{ hoveredThemeTooltip.voicesText }}</span>
             </div>
         </div>
     </div>
 
     <div class="right-panel">
-        <h2 class="section-title">What we are hearing</h2>
+        <h2 class="section-title">{{ text.voicesTitle }}</h2>
         <div class="voices-grid" [@voicesAnimation]="displayedVoices.length">
-            <div *ngFor="let voice of displayedVoices" class="voice-card active" [ngClass]="voice.color">
-                <img src="/assets/icons/quote.png" alt="Quotation mark icon" class="quote-icon">
+            <div *ngFor="let voice of displayedVoices" class="voice-card active" [ngClass]="voice.color" [style.background-color]="voice.activeBackgroundColor || voice.backgroundColor">
+                <img [src]="text.quoteIconSrc" [alt]="text.quoteIconAlt" class="quote-icon">
                 <div class="quote-container">
                     <p class="quote-text">{{ voice.description }}</p>
                     <p class="quote-author">– {{ voice.voice_by }},{{voice.state | titlecase}}</p>
