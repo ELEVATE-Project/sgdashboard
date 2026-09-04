@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { environment } from '../../../../environments/environment';
 import { HEATMAP_THEME, THEMES_EMERGED } from '../../../constants/urlConstants';
+import { DEFAULT_THEME_COLORS, HEATMAP_TEXT, THEME_CLASS_COLORS } from '../../../constants/heatmapConstants';
 import * as d3 from 'd3';
 import { ActiveElement, Chart, ChartConfiguration, ChartEvent, registerables, ScriptableContext } from 'chart.js';
 import { TreemapController, TreemapDataPoint, TreemapElement } from 'chartjs-chart-treemap';
@@ -30,37 +31,6 @@ export interface VoiceQuote {
   activeBackgroundColor?: string;
   state: string;
 }
-
-const DEFAULT_THEME_COLORS = [
-  { background: '#9569ce', active: '#572e91' },
-  { background: '#ad91bf', active: '#8f6aa8' },
-  { background: '#be7666', active: '#961c00' },
-  { background: '#709dd7', active: '#1177ff' },
-  { background: '#dd8cb5', active: '#e03389' },
-  { background: '#c2d9ad', active: '#90b36c' },
-  { background: '#94d6dc', active: '#4fb5bf' },
-  { background: '#9368ce', active: '#6d42ad' },
-  { background: '#a98aba', active: '#8f6aa8' },
-  { background: '#edc585', active: '#e3a94e' },
-  { background: '#ddd3a9', active: '#c6b86e' },
-  { background: '#d5b4a9', active: '#c18f80' },
-  { background: '#e46c88', active: '#d94062' },
-  { background: '#c77db4', active: '#ad5c9a' },
-];
-
-const THEME_CLASS_COLORS: Record<string, { background: string; active: string }> = {
-  purple: { background: '#572E9199', active: '#572E91' },
-  'light-purple': { background: '#572E9199', active: '#802B80' },
-  brown: { background: '#961C0080', active: '#D94D3F' },
-  'brown-light': { background: '#CA7862CC', active: '#CA7862' },
-  blue: { background: '#64b5f6', active: '#64b5f6' },
-  pink: { background: '#E0338A99', active: '#E0338A' },
-  green: { background: '#8DC162CC', active: '#90db52cc' },
-  cyan: { background: '#4dd0e1', active: '#4dd0e1' },
-  orange: { background: '#FF9911CC', active: '#FF9911' },
-  beige: { background: '#E2C968', active: '#f2d14c' },
-  grey: { background: '#bdbdbd', active: '#bdbdbd' },
-};
 
 @Component({
   selector: 'app-heat-map',
@@ -106,6 +76,7 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
     },
   };
 
+  readonly text = HEATMAP_TEXT;
   activeThemeId: string | null = null;
   displayedVoices: VoiceQuote[] = [];
   hoveredThemeTooltip: { label: string; voicesText: string; left: number; top: number } | null = null;
@@ -225,7 +196,7 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
       type: 'treemap',
       data: {
         datasets: [{
-          label: 'Themes beneath the voices',
+          label: this.text.themesTitle,
           data: [],
           tree: this.themes.map(theme => ({
             id: theme.id,
@@ -237,7 +208,7 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
             icon: theme.icon,
           })),
           key: 'value',
-          spacing: 6,
+          spacing: 2,
           borderRadius: 6,
           borderWidth: 0,
           backgroundColor: context => this.getTreemapTileColor(context),
@@ -301,7 +272,7 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.hoveredThemeTooltip = {
       label: theme.label,
-      voicesText: `${theme.value} Voices raised`,
+      voicesText: `${theme.value} ${this.text.voicesRaisedSuffix}`,
       left: Math.max(8, Math.min(rect['x'] + rect['width'] - tooltipWidth, this.chart.width - tooltipWidth - 8)),
       top: Math.max(8, Math.min(rect['y'] + rect['height'] - tooltipHeight, this.chart.height - tooltipHeight - 8)),
     };
@@ -330,7 +301,7 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
     meta.data.forEach((element, index) => {
       const data = this.getTreemapRawData(dataset.data[index]);
       const rect = element.getProps(['x', 'y', 'width', 'height'], true) as Record<string, number>;
-      if (rect['width'] < 34 || rect['height'] < 34) return;
+      if (rect['width'] < 16 || rect['height'] < 16) return;
 
       const shouldDrawText = this.shouldDrawTreemapText(ctx, data, rect);
       this.drawTreemapIcon(ctx, data, rect, !shouldDrawText);
@@ -376,7 +347,7 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
     const titleLines = this.wrapCanvasText(ctx, label, maxWidth, 2, titleFont);
     const titleLineHeight = sizes.titleSize + 6;
     const voiceLineHeight = sizes.voiceSize + 5;
-    const voiceText = value > 0 ? `${value} Voices raised` : '';
+    const voiceText = value > 0 ? `${value} ${this.text.voicesRaisedSuffix}` : '';
     const iconBottom = iconLayout && !compactInlineIcon ? iconLayout.y + iconLayout.size + 8 : rect['y'] + padding;
     const minY = Math.max(rect['y'] + padding, iconBottom);
     const titleOnlyHeight = titleLines.length * titleLineHeight;
@@ -434,7 +405,7 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const titleLineHeight = sizes.titleSize + 6;
     const voiceLineHeight = sizes.voiceSize + 5;
-    const voiceText = Number(data['displayValue'] ?? 0) > 0 ? `${data['displayValue']} Voices raised` : '';
+    const voiceText = Number(data['displayValue'] ?? 0) > 0 ? `${data['displayValue']} ${this.text.voicesRaisedSuffix}` : '';
     const shouldDrawVoice = Boolean(voiceText) && rect['height'] >= 58 && rect['width'] >= 74;
     const iconHeight = iconLayout && !compactInlineIcon ? iconLayout.size + 8 : 0;
     const titleOnlyHeight = padding * 2 + iconHeight + titleLines.length * titleLineHeight;
@@ -467,12 +438,13 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
     iconOnly = false
   ): { x: number; y: number; size: number } | null {
     const icon = data['icon'];
-    if (typeof icon !== 'string' || !icon || rect['width'] < 34 || rect['height'] < 34) return null;
+    if (typeof icon !== 'string' || !icon || rect['width'] < 16 || rect['height'] < 16) return null;
 
-    const padding = rect['width'] * rect['height'] > 26000 ? 10 : 7;
+    const isTiny = rect['width'] < 44 || rect['height'] < 44;
+    const padding = rect['width'] * rect['height'] > 26000 ? 10 : isTiny ? 4 : 7;
     const size = iconOnly
-      ? Math.max(14, Math.min(22, rect['width'] * 0.28, rect['height'] * 0.28))
-      : Math.max(16, Math.min(24, rect['width'] * 0.16, rect['height'] * 0.2));
+      ? Math.max(10, Math.min(22, rect['width'] * 0.28, rect['height'] * 0.28))
+      : Math.max(10, Math.min(24, rect['width'] * 0.16, rect['height'] * 0.2));
 
     return {
       x: rect['x'] + padding,
@@ -504,7 +476,11 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
       lines.push(line);
     }
 
-    const visibleLines = lines.slice(0, maxLines);
+    const visibleLines = lines.slice(0, maxLines).map(visibleLine =>
+      ctx.measureText(visibleLine).width > maxWidth
+        ? this.ellipsizeCanvasText(ctx, visibleLine, maxWidth)
+        : visibleLine
+    );
     if (lines.length > maxLines && visibleLines.length) {
       visibleLines[visibleLines.length - 1] = this.ellipsizeCanvasText(ctx, visibleLines[visibleLines.length - 1], maxWidth);
     }

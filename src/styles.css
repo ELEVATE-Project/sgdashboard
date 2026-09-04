@@ -105,6 +105,32 @@ html {
   --oc-pptx-bg: #C2410C;
   --oc-default-file-bg: #6B7280;
 
+  /* Heat map component colors */
+  --heatmap-title: var(--oc-black);
+  --heatmap-panel-text: #1f1f1f;
+  --heatmap-focus-ring: #1177ff;
+  --heatmap-shell-shadow: rgba(0, 0, 0, 0.18);
+
+  --heatmap-theme-purple: #572e9199;
+  --heatmap-theme-purple-active: var(--primary-color-light);
+  --heatmap-theme-light-purple: #572e9199;
+  --heatmap-theme-light-purple-active: #802b80;
+  --heatmap-theme-brown: #961c0080;
+  --heatmap-theme-brown-active: #d94d3f;
+  --heatmap-theme-brown-light: #ca7862cc;
+  --heatmap-theme-brown-light-active: #ca7862;
+  --heatmap-theme-blue: #64b5f6;
+  --heatmap-theme-pink: #e0338a99;
+  --heatmap-theme-pink-active: var(--oc-accent-pink);
+  --heatmap-theme-green: #8dc162cc;
+  --heatmap-theme-green-active: #90db52cc;
+  --heatmap-theme-cyan: #4dd0e1;
+  --heatmap-theme-orange: #ff9911cc;
+  --heatmap-theme-orange-active: var(--oc-accent-orange);
+  --heatmap-theme-beige: #e2c968;
+  --heatmap-theme-beige-active: #f2d14c;
+  --heatmap-theme-grey: var(--oc-disabled-border);
+
 }
 
 html.light-theme {

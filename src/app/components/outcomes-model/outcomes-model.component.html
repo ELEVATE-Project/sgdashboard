@@ -242,9 +242,9 @@
 
                   <h3>
                     {{
-                      (displayProgramData?.title ||
-                        selectedLayer.heading ||
-                        selectedLayer.chipLabel) | sentenceCase
+                      displayProgramData?.title ||
+                        ((selectedLayer.heading || selectedLayer.chipLabel)
+                          | sentenceCase)
                     }}
                   </h3>
                 </div>

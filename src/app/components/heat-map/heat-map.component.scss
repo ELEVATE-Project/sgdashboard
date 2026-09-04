@@ -6,17 +6,17 @@
 .container {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: clamp(24px, 3vw, 40px);
+  gap: clamp(1.5rem, 3vw, 2.5rem);
   font-family: var(--sg-font-body);
   background-color: var(--oc-white);
   overflow: visible;
   box-sizing: border-box;
   margin: 0;
-  padding: 0 30px;
+  padding: 0 1.88rem;
   width: 100%;
   max-width: 100%;
 
-  @media (max-width: 1024px) {
+  @media (max-width: 64rem) {
     grid-template-columns: 1fr;
     max-height: none;
   }
@@ -25,9 +25,9 @@
 .section-title {
   font-size: 1.2rem;
   font-weight: 500;
-  margin-bottom: 20px;
-  color: #000;
-  margin-left: 5px;
+  margin-bottom: 1.25rem;
+  color: var(--heatmap-title);
+  margin-left: 0.31rem;
 }
 
 .left-panel {
@@ -54,19 +54,63 @@
   display: block;
 }
 
+.treemap-a11y-controls {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.38rem;
+  padding: 0.38rem;
+  pointer-events: none;
+}
+
+.treemap-a11y-button {
+  position: absolute;
+  width: 0.06rem;
+  height: 0.06rem;
+  padding: 0;
+  margin: -0.06rem;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+
+  &:focus-visible {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0.38rem 0.63rem;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+    pointer-events: auto;
+    border-radius: 0.38rem;
+    background-color: var(--oc-white);
+    color: var(--heatmap-panel-text);
+    font: inherit;
+    font-weight: 600;
+    box-shadow: 0 0.5rem 1.38rem var(--heatmap-shell-shadow);
+    outline: 0.13rem solid var(--heatmap-focus-ring);
+    outline-offset: 0.13rem;
+    cursor: pointer;
+  }
+}
+
 .treemap-tooltip {
   position: absolute;
   z-index: 2;
-  width: 220px;
-  min-height: 48px;
-  padding: 10px 12px;
-  border-radius: 5px;
+  width: 13.75rem;
+  min-height: 3rem;
+  padding: 0.63rem 0.75rem;
+  border-radius: 0.31rem;
   background-color: var(--oc-white);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 0.5rem 1.38rem var(--heatmap-shell-shadow);
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  color: #1f1f1f;
+  gap: 0.25rem;
+  color: var(--heatmap-panel-text);
   font-size: 0.8rem;
   line-height: 1.25;
   pointer-events: none;
@@ -82,98 +126,98 @@
 }
 
 .purple {
-  background-color: #572E9199;
+  background-color: var(--heatmap-theme-purple);
 
 }
 .purple.active {
-  background-color: #572E91;
+  background-color: var(--heatmap-theme-purple-active);
 
 }
 .light-purple {
-  background-color: #572E9199;
+  background-color: var(--heatmap-theme-light-purple);
 }
 
 .light-purple.active {
-  background-color: #802B80;
+  background-color: var(--heatmap-theme-light-purple-active);
 }
 
 .brown {
-  background-color: #961C0080;
+  background-color: var(--heatmap-theme-brown);
 }
 
 
 .brown.active {
-  background-color: #D94D3F;
+  background-color: var(--heatmap-theme-brown-active);
 }
 
 .brown-light{
-  background-color: #CA7862CC;
+  background-color: var(--heatmap-theme-brown-light);
 }
 
 
 .brown-light.active{
-  background-color: #CA7862;
+  background-color: var(--heatmap-theme-brown-light-active);
 }
 .blue {
-  background-color: #64b5f6;
+  background-color: var(--heatmap-theme-blue);
 }
 
 .pink {
-  background-color: #E0338A99;
+  background-color: var(--heatmap-theme-pink);
 }
 
 .pink.active {
-  background-color: #E0338A;
+  background-color: var(--heatmap-theme-pink-active);
 }
 
 .green {
-  background-color: #8DC162CC;
+  background-color: var(--heatmap-theme-green);
 }
 
 .green.active {
-  background-color: #90db52cc;
+  background-color: var(--heatmap-theme-green-active);
 }
 
 .cyan {
-  background-color: #4dd0e1;
+  background-color: var(--heatmap-theme-cyan);
 }
 
 .orange {
-  background-color: #FF9911CC;
+  background-color: var(--heatmap-theme-orange);
 }
 
 .orange.active {
-  background-color: #FF9911;
+  background-color: var(--heatmap-theme-orange-active);
 }
 
 .beige {
-  background-color: #E2C968;
+  background-color: var(--heatmap-theme-beige);
 }
 
 .beige.active {
-  background-color: #f2d14c;
+  background-color: var(--heatmap-theme-beige-active);
 }
 
 .grey {
-  background-color: #bdbdbd;
+  background-color: var(--heatmap-theme-grey);
 }
 
 .voices-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+  gap: 1.25rem;
   height: 26rem;
   min-width: 0;
 }
 
 .voice-card {
-  border-radius: 8px;
-  padding: 22px 28px;
-  color: white;
+  border-radius: 0.5rem;
+  padding: 1.38rem 1.75rem;
+  color: var(--oc-white);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  min-height: 180px;
+  min-height: 11.25rem;
   overflow: hidden;
   min-width: 0;
   max-width: 100%;
@@ -182,14 +226,14 @@
   .quote-icon {
     filter: brightness(0) invert(1);
     opacity: 0.28;
-    width: 34px;
+    width: 2.13rem;
   }
 
   .quote-text {
     font-size: 0.9rem;
     font-weight: 600;
     line-height: 1.4;
-    margin: 0 0 15px;
+    margin: 0 0 0.94rem;
     flex-grow: 1;
     display: -webkit-box;
     -webkit-line-clamp: 5;
@@ -212,44 +256,44 @@
   display: flex;
   align-items: start;
   flex-direction: column;
-  margin-left: 48px;
-  margin-top: -6px;
-  padding-right: 10px;
+  margin-left: 3rem;
+  margin-top: -0.38rem;
+  padding-right: 0.63rem;
   min-width: 0;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 75rem) {
   .container {
-    padding: 0 20px;
+    padding: 0 1.25rem;
   }
 
   .voice-card {
-    padding: 18px 20px;
+    padding: 1.13rem 1.25rem;
   }
 
   .quote-container {
-    margin-left: 38px;
+    margin-left: 2.38rem;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
   .voice-card {
-    margin-bottom: 20px;
-    padding: 10px;
+    margin-bottom: 1.25rem;
+    padding: 0.63rem;
 
     .quote-icon {
-      margin-bottom: -30px;
-      width: 20px;
+      margin-bottom: -1.88rem;
+      width: 1.25rem;
     }
 
     .quote-text {
-      margin-left: 15px;
-      font-size: 12px;
-      margin-top: 25px;
+      margin-left: 0.94rem;
+      font-size: 0.75rem;
+      margin-top: 1.56rem;
     }
     .quote-author{
-      margin-left: 15px;
-      font-size: 12px;
+      margin-left: 0.94rem;
+      font-size: 0.75rem;
     }
   }
   .voices-grid{
@@ -261,8 +305,8 @@
   }
 
 .container{
-  margin: 0px;
-  padding: 10px;
+  margin: 0;
+  padding: 0.63rem;
   overflow: visible;
 }
 .left-panel,
@@ -270,10 +314,10 @@
     overflow: visible;
   }
 .right-panel {
-  padding: 10px;
+  padding: 0.63rem;
 }
 
 .quote-container {
-  margin-left: 28px;
+  margin-left: 1.75rem;
 }
 }
