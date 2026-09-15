@@ -363,7 +363,7 @@ export class OutcomesModelComponent implements OnDestroy, OnInit {
 
   get frameworkLayers(): OutcomesLayerConfig[] {
     const order: Partial<Record<OutcomesLayerKey, number>> = {
-      students: 0,
+      learner_outcomes: 0,
       schools: 1,
       community: 2,
       system: 3,
