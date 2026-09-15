@@ -1,5 +1,5 @@
 export type OutcomesLayerKey =
-  | 'students'
+  | 'learner_outcomes'
   | 'schools'
   | 'community'
   | 'society'
@@ -272,7 +272,7 @@ export const EMPTY_OUTCOMES_MODEL_CONFIG: OutcomesModelConfig = {
   description: '',
   layerFootnote: '',
   chipFootnote: '',
-  defaultLayer: 'students',
+  defaultLayer: 'learner_outcomes',
   programChipLabel: '',
   programColor: '',
   layers: [],
@@ -290,7 +290,7 @@ export const EMPTY_OUTCOMES_MODEL_CONFIG: OutcomesModelConfig = {
 };
 
 export const EMPTY_LAYER: OutcomesLayerConfig = {
-  key: 'students',
+  key: 'learner_outcomes',
   chipLabel: '',
   diagramLabel: '',
   icon: '',
@@ -330,10 +330,10 @@ export function isValidOutcomesModelConfig(data: any): data is OutcomesModelConf
 // The API text is not fully stable, so normalize common spelling/plural variants
 // before matching (e.g. Centre/Center, Anganwadi/Anganavadi, "&"/"and").
 const IMPACT_LAYER_KEY_MAP: Record<string, OutcomesLayerKey> = {
-  'learners outcomes': 'students',
-  'learner outcomes': 'students',
-  learners: 'students',
-  students: 'students',
+  'learners outcomes': 'learner_outcomes',
+  'learner outcomes': 'learner_outcomes',
+  learners: 'learner_outcomes',
+  students: 'learner_outcomes',
   'schools anganwadi centres': 'schools',
   'schools anganwadi centers': 'schools',
   'school anganwadi centre': 'schools',
@@ -369,12 +369,12 @@ function getImpactLayerKey(impactLayer: any): OutcomesLayerKey | undefined {
   if (normalizedLabel.includes('anganwadi') || normalizedLabel.includes('school')) return 'schools';
   if (normalizedLabel.includes('communit')) return 'community';
   if (normalizedLabel.includes('system')) return 'system';
-  if (normalizedLabel.includes('learner') || normalizedLabel.includes('student')) return 'students';
+  if (normalizedLabel.includes('learner') || normalizedLabel.includes('student')) return 'learner_outcomes';
 
   return undefined;
 }
 
-const PROGRAM_OUTCOME_BASE_LAYER_KEY: OutcomesLayerKey = 'students';
+const PROGRAM_OUTCOME_BASE_LAYER_KEY: OutcomesLayerKey = 'learner_outcomes';
 
 // Reshapes one impact_layer entry's outcome cards. The live API currently nests these
 // under `frameworks[].details[]` (label = framework_name); a flat `cards[]` (label/description
