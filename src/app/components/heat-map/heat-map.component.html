@@ -35,7 +35,7 @@
     <div class="right-panel">
         <h2 class="section-title">{{ text.voicesTitle }}</h2>
         <div class="voices-area">
-            <div class="voices-grid" [@voicesAnimation]="displayedVoices.length">
+            <div class="voices-grid" [@voicesAnimation]="displayedVoices.length" [inert]="isVoiceOpen">
                 <div *ngFor="let voice of displayedVoices; let i = index" class="voice-card active" [ngClass]="voice.color" [style.background-color]="voice.activeBackgroundColor || voice.backgroundColor">
                     <img [src]="text.quoteIconSrc" [alt]="text.quoteIconAlt" class="quote-icon">
                     <div class="quote-container">
