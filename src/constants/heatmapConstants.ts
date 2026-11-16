@@ -7,6 +7,8 @@ export const HEATMAP_TEXT = {
   themesTitle: 'Themes beneath the voices',
   voicesTitle: 'What we are hearing',
   themeSelectorLabel: 'Select a theme',
+  clearSelection: 'Clear selection',
+  themeInstruction: '* Hover or click on the tile to see what we are hearing',
   voicesRaisedSuffix: 'Voices raised',
   quoteIconSrc: '/assets/icons/quote.png',
   quoteIconAlt: 'Quotation mark icon',
