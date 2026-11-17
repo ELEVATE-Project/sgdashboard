@@ -1,5 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { A11yModule } from '@angular/cdk/a11y';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { environment } from '../../../../environments/environment';
 import { HEATMAP_THEME, THEMES_EMERGED } from '../../../constants/urlConstants';
@@ -18,7 +19,7 @@ export interface HeatmapTheme {
   backgroundColor: string;
   activeBackgroundColor: string;
   icon?: string;
-  list?: [];
+  list?: VoiceQuote[];
 }
 
 export interface VoiceQuote {
@@ -35,7 +36,7 @@ export interface VoiceQuote {
 @Component({
   selector: 'app-heat-map',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, A11yModule],
   templateUrl: './heat-map.component.html',
   styleUrl: './heat-map.component.scss',
   animations: [
@@ -55,6 +56,37 @@ export interface VoiceQuote {
   ]
 })
 export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
+  isVoiceOpen = false;
+  expandedVoiceIndex = 0;
+
+  get activeTheme(): HeatmapTheme | undefined {
+    return this.themes.find(theme => theme.id === this.activeThemeId);
+  }
+
+  get themeVoices(): VoiceQuote[] {
+    return this.activeTheme?.list ?? [];
+  }
+
+  get expandedVoice(): VoiceQuote | undefined {
+    return this.themeVoices[this.expandedVoiceIndex];
+  }
+
+  openVoice(index: number): void {
+    this.expandedVoiceIndex = index;
+    this.isVoiceOpen = true;
+  }
+
+  closeVoice(): void {
+    this.isVoiceOpen = false;
+  }
+
+  navigateVoice(direction: number): void {
+    const nextIndex = this.expandedVoiceIndex + direction;
+    if (nextIndex >= 0 && nextIndex < this.themeVoices.length) {
+      this.expandedVoiceIndex = nextIndex;
+    }
+  }
+
   @ViewChild('treemapCanvas')
   set treemapCanvas(canvas: ElementRef<HTMLCanvasElement> | undefined) {
     this.treemapCanvasRef = canvas;
@@ -78,6 +110,7 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   readonly text = HEATMAP_TEXT;
   activeThemeId: string | null = null;
+  selectedThemeId: string | null = null;
   displayedVoices: VoiceQuote[] = [];
   hoveredThemeTooltip: { label: string; voicesText: string; left: number; top: number } | null = null;
 
@@ -141,7 +174,28 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
+  selectTheme(themeId: string): void {
+    this.selectedThemeId = themeId;
+    this.hoveredThemeTooltip = null;
+    this.setActiveTheme(themeId);
+  }
+
+  clearSelection(): void {
+    this.selectedThemeId = null;
+    this.hoveredThemeTooltip = null;
+    this.closeVoice();
+    this.chart?.setActiveElements([]);
+    if (this.themes.length) {
+      this.setActiveTheme(this.themes[0].id);
+    } else {
+      this.activeThemeId = null;
+      this.displayedVoices = [];
+      this.chart?.update('none');
+    }
+  }
+
   setActiveTheme(themeId: string, refreshChart = true): void {
+    if (themeId !== this.activeThemeId) this.closeVoice();
     this.activeThemeId = themeId;
     const activeTheme = this.themes.find(t => t.id === themeId);
     this.displayedVoices = (activeTheme?.list ?? []).slice(0, 4);
@@ -182,6 +236,7 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private readonly handleTreemapPointerLeave = (): void => {
+    if (this.selectedThemeId !== null) return;
     if (!this.hoveredThemeTooltip) return;
     this.hoveredThemeTooltip = null;
     this.changeDetectorRef.detectChanges();
@@ -251,11 +306,12 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private activateThemeFromElement(element?: ActiveElement): void {
     const theme = this.getThemeFromChartElement(element);
-    if (!theme || theme.id === this.activeThemeId) return;
-    this.setActiveTheme(theme.id);
+    if (!theme) return;
+    this.selectTheme(theme.id);
   }
 
   private handleTreemapHover(element?: ActiveElement): void {
+    if (this.selectedThemeId !== null) return;
     const theme = this.getThemeFromChartElement(element);
     if (!theme || !this.chart) {
       this.hoveredThemeTooltip = null;
@@ -267,7 +323,13 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
       this.setActiveTheme(theme.id);
     }
 
-    const chartElement = this.chart.getDatasetMeta(element!.datasetIndex).data[element!.index];
+    this.showThemeTooltip(theme, element!);
+  }
+
+  private showThemeTooltip(theme: HeatmapTheme, element: Pick<ActiveElement, 'datasetIndex' | 'index'>): void {
+    if (!this.chart) return;
+    const chartElement = this.chart.getDatasetMeta(element.datasetIndex).data[element.index];
+    if (!chartElement) return;
     const rect = chartElement.getProps(['x', 'y', 'width', 'height'], true) as Record<string, number>;
     const tooltipWidth = 220;
     const tooltipHeight = 48;
@@ -589,6 +651,7 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private getTreemapActiveColor(context: ScriptableContext<'treemap'>): string {
+    if (this.selectedThemeId !== null) return this.getTreemapTileColor(context);
     const data = this.getTreemapRawData(context.raw);
     return data['activeBackgroundColor'] ?? data['backgroundColor'] ?? '#bdbdbd';
   }

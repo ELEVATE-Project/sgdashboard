@@ -1,4 +1,4 @@
-import {Component,OnInit,OnDestroy,Renderer2,NgZone} from '@angular/core';
+import {Component,Input,OnChanges,OnInit,OnDestroy,Renderer2,NgZone} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImprovementStoryComponent } from '../improvement-story/improvement-story.component';
 import { UtilsService } from '../../services/utils.services';
@@ -15,7 +15,9 @@ import { STORY_OF_THE_WEEK } from '../../../constants/urlConstants';
   styleUrl: './stories-carousel.component.scss'
 })
 
-export class StoriesCarouselComponent implements OnInit, OnDestroy {
+export class StoriesCarouselComponent implements OnChanges, OnInit, OnDestroy {
+  @Input() excludedStoryId: string | number | null | undefined;
+  private allStories: any[] = [];
   slides: any[] = [];
   browserId: any;
   chunkedSlides: any[][] = [];
@@ -42,15 +44,24 @@ export class StoriesCarouselComponent implements OnInit, OnDestroy {
     this.ngZone.runOutsideAngular(() => {
       d3.json(`${environment.storageURL}/${environment.bucketName}/${environment.folderName}/${STORY_OF_THE_WEEK}`).then((data: any) => {
       this.ngZone.run(() => {
-      const currentWeek = this.getWeekNumber(new Date());
-      this.slides = this.getStoriesForWeek(data?.data ?? [], currentWeek);
-      this.slides = this.utils.assignColorsToStories(this.slides)
-
-      this.updateChunks();
-          this.loadStoryCounts();
+      this.allStories = data?.data ?? [];
+      this.refreshStories();
       });
       }).catch(err => console.error(err));
     });
+  }
+
+  ngOnChanges() {
+    this.refreshStories();
+  }
+
+  private refreshStories() {
+    const currentWeek = this.getWeekNumber(new Date());
+    this.slides = this.utils.assignColorsToStories(
+      this.getStoriesForWeek(this.allStories, currentWeek)
+    );
+    this.updateChunks();
+    this.loadStoryCounts();
   }
 
 
@@ -137,9 +148,10 @@ export class StoriesCarouselComponent implements OnInit, OnDestroy {
     const visibleStoriesCount = 6;
     const startIndex = ((weekNumber - 1) % stories.length + stories.length) % stories.length;
 
-    return Array.from({ length: visibleStoriesCount }, (_, index) => {
+    return Array.from({ length: stories.length }, (_, index) => {
       return stories[(startIndex + index) % stories.length];
-    });
+    }).filter(story => this.excludedStoryId == null || story.id !== this.excludedStoryId)
+      .slice(0, visibleStoriesCount);
   }
 
   getWeekNumber(d: Date): number {

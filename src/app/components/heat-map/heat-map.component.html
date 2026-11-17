@@ -1,14 +1,19 @@
 <div class="container">
     <div class="left-panel">
-        <h2 class="section-title">{{ text.themesTitle }}</h2>
+        <div class="themes-heading">
+            <h2 class="section-title">{{ text.themesTitle }}</h2>
+            <button *ngIf="selectedThemeId !== null" type="button" class="clear-selection" (click)="clearSelection()">
+                {{ text.clearSelection }} <span aria-hidden="true">×</span>
+            </button>
+        </div>
         <div class="treemap-shell" *ngIf="themes && themes.length">
             <div class="treemap-a11y-controls" role="group" [attr.aria-label]="text.themeSelectorLabel">
                 <button
                     *ngFor="let theme of themes"
                     type="button"
                     class="treemap-a11y-button"
-                    [attr.aria-pressed]="activeThemeId === theme.id"
-                    (click)="setActiveTheme(theme.id)"
+                    [attr.aria-pressed]="selectedThemeId === theme.id"
+                    (click)="selectTheme(theme.id)"
                 >
                     {{ theme.label }} – {{ theme.value }} {{ text.voicesRaisedSuffix }}
                 </button>
@@ -24,18 +29,54 @@
                 <span>{{ hoveredThemeTooltip.voicesText }}</span>
             </div>
         </div>
+        <p class="theme-instruction">{{ text.themeInstruction }}</p>
     </div>
 
     <div class="right-panel">
         <h2 class="section-title">{{ text.voicesTitle }}</h2>
-        <div class="voices-grid" [@voicesAnimation]="displayedVoices.length">
-            <div *ngFor="let voice of displayedVoices" class="voice-card active" [ngClass]="voice.color" [style.background-color]="voice.activeBackgroundColor || voice.backgroundColor">
-                <img [src]="text.quoteIconSrc" [alt]="text.quoteIconAlt" class="quote-icon">
-                <div class="quote-container">
-                    <p class="quote-text">{{ voice.description }}</p>
-                    <p class="quote-author">– {{ voice.voice_by }},{{voice.state | titlecase}}</p>
+        <div class="voices-area">
+            <div class="voices-grid" [@voicesAnimation]="displayedVoices.length" [inert]="isVoiceOpen">
+                <div *ngFor="let voice of displayedVoices; let i = index" class="voice-card active" [ngClass]="voice.color" [style.background-color]="voice.activeBackgroundColor || voice.backgroundColor">
+                    <img [src]="text.quoteIconSrc" [alt]="text.quoteIconAlt" class="quote-icon">
+                    <div class="quote-container">
+                        <p class="quote-text">{{ voice.description }}</p>
+                        <p class="quote-author">– {{ voice.voice_by }},{{voice.state | titlecase}}</p>
+                    </div>
+                    <div class="voice-footer">
+                        <span class="theme-label">{{ activeTheme?.label }}</span>
+                        <button type="button" class="voice-button" aria-label="Expand voice" (click)="openVoice(i)">
+                            <span aria-hidden="true">⤢</span>
+                        </button>
+                    </div>
                 </div>
             </div>
+            <div *ngIf="isVoiceOpen" class="voice-overlay" (click)="closeVoice()">
+                <div class="voice-dialog" role="dialog" aria-label="Full voice" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" (keydown.escape)="closeVoice(); $event.stopPropagation()" (click)="$event.stopPropagation()">
+                    <div *ngIf="expandedVoice as voice" class="voice-card active expanded-voice" [ngClass]="voice.color" [style.background-color]="voice.activeBackgroundColor || voice.backgroundColor">
+                        <button type="button" class="voice-button close-voice" aria-label="Close voice" (click)="closeVoice()" autofocus>
+                            <span aria-hidden="true">×</span>
+                        </button>
+                        <img [src]="text.quoteIconSrc" alt="" class="quote-icon">
+                        <div class="quote-container" aria-live="polite">
+                            <p class="quote-text">{{ voice.description }}</p>
+                            <p class="quote-author">– {{ voice.voice_by }}, {{ voice.state | titlecase }}</p>
+                        </div>
+                        <div class="voice-footer">
+                            <span class="theme-label">{{ activeTheme?.label }}</span>
+                            <div class="voice-navigation">
+                                <button type="button" class="voice-button" aria-label="Previous voice" [disabled]="expandedVoiceIndex === 0" (click)="navigateVoice(-1)">
+                                    <span aria-hidden="true">‹</span>
+                                </button>
+                                <span aria-live="polite">{{ expandedVoiceIndex + 1 }} of {{ themeVoices.length }} voices</span>
+                                <button type="button" class="voice-button" aria-label="Next voice" [disabled]="expandedVoiceIndex === themeVoices.length - 1" (click)="navigateVoice(1)">
+                                    <span aria-hidden="true">›</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>

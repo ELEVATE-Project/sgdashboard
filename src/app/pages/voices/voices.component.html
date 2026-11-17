@@ -99,7 +99,7 @@
     <ng-container *ngSwitchCase="'more-stories'">
       <section [style.width]="isMobile ? '100%' : section.width">
         <div class="row">
-          <app-stories-carousel></app-stories-carousel>
+          <app-stories-carousel [excludedStoryId]="story?.id"></app-stories-carousel>
         </div>
       </section>
     </ng-container>
