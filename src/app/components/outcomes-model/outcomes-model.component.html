@@ -60,6 +60,12 @@
           [prevLabel]="config.ariaLabels.prevCards"
           [nextLabel]="config.ariaLabels.nextCards"
           [cardPagesLabel]="config.ariaLabels.cardPages"
+          [currentLayerColor]="selectedLayer.color"
+          [previousLayerColor]="previousAvailableProgramLayer?.color || null"
+          [nextLayerColor]="nextAvailableProgramLayer?.color || null"
+          [previousLayerLabel]="previousAvailableProgramLayer?.chipLabel || ''"
+          [nextLayerLabel]="nextAvailableProgramLayer?.chipLabel || ''"
+          (layerNavigate)="navigateAvailableProgramLayer($event)"
         ></app-outcomes-program-card-carousel>
 
         <app-outcomes-evidence-carousel
