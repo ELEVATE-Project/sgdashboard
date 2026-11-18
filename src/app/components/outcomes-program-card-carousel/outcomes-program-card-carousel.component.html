@@ -2,7 +2,8 @@
   class="program-card-carousel"
   [class.has-nav-prev]="canShowPreviousArrow"
   [class.has-nav-next]="canShowNextArrow"
-  *ngIf="cards.length"
+  [class.has-cards]="cards.length > 0"
+  *ngIf="cards.length || previousLayerColor || nextLayerColor"
 >
 
   <button
@@ -23,7 +24,7 @@
   </button>
 
 
-  <div class="program-card-content">
+  <div class="program-card-content" *ngIf="cards.length">
 
     <div
       class="program-mode-cards"

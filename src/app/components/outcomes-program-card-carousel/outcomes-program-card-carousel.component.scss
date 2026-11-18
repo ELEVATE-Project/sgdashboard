@@ -18,6 +18,10 @@
     padding-right: var(--nav-gutter);
   }
 
+  &:not(.has-cards) {
+    min-height: 2.625rem;
+  }
+
   &,
   & * {
     box-sizing: border-box;

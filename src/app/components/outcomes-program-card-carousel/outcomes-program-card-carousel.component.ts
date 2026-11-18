@@ -70,11 +70,11 @@ export class OutcomesProgramCardCarouselComponent {
   }
 
   get canShowPreviousArrow(): boolean {
-    return this.canGoToPrevious || !!this.previousLayerColor;
+    return (this.cards.length > 0 && this.canGoToPrevious) || !!this.previousLayerColor;
   }
 
   get canShowNextArrow(): boolean {
-    return this.canGoToNext || !!this.nextLayerColor;
+    return (this.cards.length > 0 && this.canGoToNext) || !!this.nextLayerColor;
   }
 
   get previousArrowColor(): string {
@@ -90,7 +90,7 @@ export class OutcomesProgramCardCarouselComponent {
   }
 
   showPrevious(): void {
-    if (this.canGoToPrevious) {
+    if (this.cards.length > 0 && this.canGoToPrevious) {
       this.pageIndex = this.clampPageIndex(this.pageIndex - 1, this.pageCount);
     } else if (this.previousLayerColor) {
       this.layerNavigate.emit(-1);
@@ -98,7 +98,7 @@ export class OutcomesProgramCardCarouselComponent {
   }
 
   showNext(): void {
-    if (this.canGoToNext) {
+    if (this.cards.length > 0 && this.canGoToNext) {
       this.pageIndex = this.clampPageIndex(this.pageIndex + 1, this.pageCount);
     } else if (this.nextLayerColor) {
       this.layerNavigate.emit(1);
