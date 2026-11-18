@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, Input } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { ProgramOutcomeCard } from '../outcomes-model/outcomes-model.config';
 import { SentenceCasePipe } from '../outcomes-model/sentence-case.pipe';
 
@@ -23,6 +23,12 @@ export class OutcomesProgramCardCarouselComponent {
   @Input() prevLabel = '';
   @Input() nextLabel = '';
   @Input() cardPagesLabel = '';
+  @Input() currentLayerColor = '';
+  @Input() previousLayerColor: string | null = null;
+  @Input() nextLayerColor: string | null = null;
+  @Input() previousLayerLabel = '';
+  @Input() nextLayerLabel = '';
+  @Output() layerNavigate = new EventEmitter<number>();
 
   private readonly MOBILE_BREAKPOINT = 768;
 
@@ -63,12 +69,40 @@ export class OutcomesProgramCardCarouselComponent {
     return this.pageIndex < this.pageCount - 1;
   }
 
+  get canShowPreviousArrow(): boolean {
+    return (this.cards.length > 0 && this.canGoToPrevious) || !!this.previousLayerColor;
+  }
+
+  get canShowNextArrow(): boolean {
+    return (this.cards.length > 0 && this.canGoToNext) || !!this.nextLayerColor;
+  }
+
+  get previousArrowColor(): string {
+    return this.canGoToPrevious
+      ? this.currentLayerColor
+      : this.previousLayerColor || this.currentLayerColor;
+  }
+
+  get nextArrowColor(): string {
+    return this.canGoToNext
+      ? this.currentLayerColor
+      : this.nextLayerColor || this.currentLayerColor;
+  }
+
   showPrevious(): void {
-    this.pageIndex = this.clampPageIndex(this.pageIndex - 1, this.pageCount);
+    if (this.cards.length > 0 && this.canGoToPrevious) {
+      this.pageIndex = this.clampPageIndex(this.pageIndex - 1, this.pageCount);
+    } else if (this.previousLayerColor) {
+      this.layerNavigate.emit(-1);
+    }
   }
 
   showNext(): void {
-    this.pageIndex = this.clampPageIndex(this.pageIndex + 1, this.pageCount);
+    if (this.cards.length > 0 && this.canGoToNext) {
+      this.pageIndex = this.clampPageIndex(this.pageIndex + 1, this.pageCount);
+    } else if (this.nextLayerColor) {
+      this.layerNavigate.emit(1);
+    }
   }
 
   goToPage(pageIndex: number): void {

@@ -374,6 +374,19 @@ export class OutcomesModelComponent implements OnDestroy, OnInit {
     return [...this.layers].sort((a, b) => (order[a.key] ?? 99) - (order[b.key] ?? 99));
   }
 
+  get previousAvailableProgramLayer(): OutcomesLayerConfig | undefined {
+    return this.getAdjacentAvailableProgramLayer(-1);
+  }
+
+  get nextAvailableProgramLayer(): OutcomesLayerConfig | undefined {
+    return this.getAdjacentAvailableProgramLayer(1);
+  }
+
+  navigateAvailableProgramLayer(direction: number): void {
+    const layer = this.getAdjacentAvailableProgramLayer(direction);
+    if (layer) this.selectLayer(layer.key);
+  }
+
   get shouldShowFrameworkList(): boolean {
     return this.shouldShowLayerFrameworkList(this.selectedLayerKey);
   }
@@ -445,6 +458,17 @@ export class OutcomesModelComponent implements OnDestroy, OnInit {
 
   trackByIndex(index: number): number {
     return index;
+  }
+
+  private getAdjacentAvailableProgramLayer(direction: number): OutcomesLayerConfig | undefined {
+    const availableLayers = this.frameworkLayers.filter((layer) =>
+      this.isProgramLayerAvailable(layer.key)
+    );
+    const selectedIndex = availableLayers.findIndex(
+      (layer) => layer.key === this.selectedLayerKey
+    );
+
+    return availableLayers[selectedIndex + direction];
   }
 
   private getProgramLayerData(layerKey: OutcomesLayerKey): ProgramOutcomeData | undefined {
