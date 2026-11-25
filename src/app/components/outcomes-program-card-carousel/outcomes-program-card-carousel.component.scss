@@ -129,14 +129,15 @@
 
   .arrow-rays {
     display: none;
+    opacity: 1;
     stroke: var(--arrow-color);
-    stroke-width: 3.5;
+    stroke-width: 4;
     transform-origin: center;
   }
 
   &.layer-nav-arrow {
     .arrow-outer-ring {
-      stroke-width: 2.7;
+      stroke-width: 3.7px;
     }
 
     .arrow-inner-ring {
@@ -149,12 +150,8 @@
 
     .arrow-rays {
       display: block;
-      animation: arrow-rays-bloom 1.4s ease-in-out infinite alternate;
+      animation: arrow-rays-flow 1.2s ease-in-out infinite;
     }
-  }
-
-  &:hover svg {
-    transform: scale(1.08);
   }
 
   &:focus,
@@ -170,16 +167,23 @@
 
   &-prev {
     left: 0.25rem;
+    --ray-step-one: -1px;
+    --ray-step-two: -6px;
+    --ray-step-three: -10px;
   }
 
   &-next {
     right: 0.25rem;
+    --ray-step-one: 1px;
+    --ray-step-two: 6px;
+    --ray-step-three: 10px;
   }
 }
 
-@keyframes arrow-rays-bloom {
-  from { opacity: 0.65; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1.08); }
+@keyframes arrow-rays-flow {
+  0%, 100% { transform: translateX(var(--ray-step-one)); }
+  33% { transform: translateX(var(--ray-step-two)); }
+  66% { transform: translateX(var(--ray-step-three)); }
 }
 
 @media (prefers-reduced-motion: reduce) {

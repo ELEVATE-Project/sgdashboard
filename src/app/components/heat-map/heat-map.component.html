@@ -3,7 +3,10 @@
         <div class="themes-heading">
             <h2 class="section-title">{{ text.themesTitle }}</h2>
             <button *ngIf="selectedThemeId !== null" type="button" class="clear-selection" (click)="clearSelection()">
-                {{ text.clearSelection }} <span aria-hidden="true">×</span>
+                {{ text.clearSelection }}
+                <svg class="clear-selection-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                    <path d="m4 4 8 8M12 4l-8 8" />
+                </svg>
             </button>
         </div>
         <div class="treemap-shell" *ngIf="themes && themes.length">
@@ -44,8 +47,10 @@
                     </div>
                     <div class="voice-footer">
                         <span class="theme-label">{{ activeTheme?.label }}</span>
-                        <button type="button" class="voice-button" aria-label="Expand voice" (click)="openVoice(i)">
-                            <span aria-hidden="true">⤢</span>
+                        <button type="button" class="voice-button expand-button" aria-label="Expand voice" (click)="openVoice(i)">
+                            <svg class="voice-control-icon expand-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                                <path d="M9 2h5v5M14 2 9 7M7 14H2V9M2 14l5-5" />
+                            </svg>
                         </button>
                     </div>
                 </div>
@@ -65,11 +70,11 @@
                             <span class="theme-label">{{ activeTheme?.label }}</span>
                             <div class="voice-navigation">
                                 <button type="button" class="voice-button" aria-label="Previous voice" [disabled]="expandedVoiceIndex === 0" (click)="navigateVoice(-1)">
-                                    <span aria-hidden="true">‹</span>
+                                    <svg class="voice-control-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m11 2.5-8 5.5 8 5.5" /></svg>
                                 </button>
                                 <span aria-live="polite">{{ expandedVoiceIndex + 1 }} of {{ themeVoices.length }} voices</span>
                                 <button type="button" class="voice-button" aria-label="Next voice" [disabled]="expandedVoiceIndex === themeVoices.length - 1" (click)="navigateVoice(1)">
-                                    <span aria-hidden="true">›</span>
+                                    <svg class="voice-control-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m5 2.5 8 5.5-8 5.5" /></svg>
                                 </button>
                             </div>
                         </div>

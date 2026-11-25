@@ -178,6 +178,7 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedThemeId = themeId;
     this.hoveredThemeTooltip = null;
     this.setActiveTheme(themeId);
+    this.changeDetectorRef.detectChanges();
   }
 
   clearSelection(): void {
@@ -192,6 +193,7 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
       this.displayedVoices = [];
       this.chart?.update('none');
     }
+    this.changeDetectorRef.detectChanges();
   }
 
   setActiveTheme(themeId: string, refreshChart = true): void {
