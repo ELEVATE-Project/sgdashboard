@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { A11yModule } from '@angular/cdk/a11y';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
@@ -100,6 +100,7 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
   private treemapCanvasRef?: ElementRef<HTMLCanvasElement>;
   private chart?: Chart<'treemap', TreemapDataPoint[], unknown>;
   private isViewReady = false;
+  private touchStartPoint: { x: number; y: number } | null = null;
   private readonly treemapIconImages = new Map<string, HTMLImageElement>();
   private readonly themeContentPlugin = {
     id: 'heatmapThemeContent',
@@ -114,7 +115,10 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
   displayedVoices: VoiceQuote[] = [];
   hoveredThemeTooltip: { label: string; voicesText: string; left: number; top: number } | null = null;
 
-  constructor(private readonly changeDetectorRef: ChangeDetectorRef) {}
+  constructor(
+    private readonly changeDetectorRef: ChangeDetectorRef,
+    private readonly ngZone: NgZone,
+  ) {}
 
 
   ngOnInit(): void {
@@ -242,11 +246,39 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.changeDetectorRef.detectChanges();
   };
 
+  // Keep the start point so touchend can distinguish a tap from a scroll.
+  private readonly handleTreemapTouchStart = (event: TouchEvent): void => {
+    const touch = event.touches[0];
+    this.touchStartPoint = touch ? { x: touch.clientX, y: touch.clientY } : null;
+  };
+
+  private readonly handleTreemapTouchEnd = (event: TouchEvent): void => {
+    const touch = event.changedTouches[0];
+    const start = this.touchStartPoint;
+    this.touchStartPoint = null;
+    if (!touch || !start || !this.chart) return;
+    if (Math.hypot(touch.clientX - start.x, touch.clientY - start.y) > 12) return;
+
+    const elements = this.chart.getElementsAtEventForMode(
+      { clientX: touch.clientX, clientY: touch.clientY, target: event.currentTarget } as unknown as Event,
+      'nearest',
+      { intersect: true },
+      true,
+    );
+    const selectedElement = elements[0];
+    if (selectedElement) {
+      this.ngZone.run(() => this.activateThemeFromElement(selectedElement));
+    }
+  };
+
   private renderTreemap(): void {
     if (!this.isViewReady || !this.treemapCanvasRef || !this.themes.length) return;
 
     this.chart?.destroy();
-    this.treemapCanvasRef.nativeElement.removeEventListener('pointerleave', this.handleTreemapPointerLeave);
+    const canvas = this.treemapCanvasRef.nativeElement;
+    canvas.removeEventListener('pointerleave', this.handleTreemapPointerLeave);
+    canvas.removeEventListener('touchstart', this.handleTreemapTouchStart);
+    canvas.removeEventListener('touchend', this.handleTreemapTouchEnd);
 
     const config: ChartConfiguration<'treemap', TreemapDataPoint[], unknown> = {
       type: 'treemap',
@@ -280,9 +312,13 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
         maintainAspectRatio: false,
         animation: false,
         onClick: (_event: ChartEvent, elements: ActiveElement[]) => {
-          this.activateThemeFromElement(elements[0]);
+          this.ngZone.run(() => this.activateThemeFromElement(elements[0]));
         },
         onHover: (event: ChartEvent, elements: ActiveElement[]) => {
+          const nativeEvent = event.native;
+          const pointerType = (nativeEvent as PointerEvent | undefined)?.pointerType;
+          const isTouchEvent = nativeEvent?.type.startsWith('touch') || pointerType === 'touch';
+          if (isTouchEvent) return;
           const target = event.native?.target as HTMLElement | undefined;
           if (target) {
             target.style.cursor = elements.length ? 'pointer' : 'default';
@@ -301,7 +337,9 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     this.chart = new Chart(this.treemapCanvasRef.nativeElement, config);
-    this.treemapCanvasRef.nativeElement.addEventListener('pointerleave', this.handleTreemapPointerLeave);
+    canvas.addEventListener('pointerleave', this.handleTreemapPointerLeave);
+    canvas.addEventListener('touchstart', this.handleTreemapTouchStart, { passive: true });
+    canvas.addEventListener('touchend', this.handleTreemapTouchEnd, { passive: true });
   }
 
   private activateThemeFromElement(element?: ActiveElement): void {
@@ -658,6 +696,8 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.treemapCanvasRef?.nativeElement.removeEventListener('pointerleave', this.handleTreemapPointerLeave);
+    this.treemapCanvasRef?.nativeElement.removeEventListener('touchstart', this.handleTreemapTouchStart);
+    this.treemapCanvasRef?.nativeElement.removeEventListener('touchend', this.handleTreemapTouchEnd);
     this.chart?.destroy();
   }
 }
