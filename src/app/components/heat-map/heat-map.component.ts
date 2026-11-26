@@ -246,6 +246,7 @@ export class HeatMapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.changeDetectorRef.detectChanges();
   };
 
+  // Keep the start point so touchend can distinguish a tap from a scroll.
   private readonly handleTreemapTouchStart = (event: TouchEvent): void => {
     const touch = event.touches[0];
     this.touchStartPoint = touch ? { x: touch.clientX, y: touch.clientY } : null;
